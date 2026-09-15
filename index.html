@@ -13,6 +13,22 @@
   <!-- Markdown Parser (Marked) -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
+  <!-- MathJax Configuration & Engine for LaTeX Rendering -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process'
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
   <style>
     :root {
       --bg-wallpaper: #f8fafc;
@@ -134,6 +150,11 @@
       color: var(--text-muted);
       font-style: italic;
     }
+
+    /* MathJax Display Styling */
+    .mjx-chtml {
+      font-size: 1.05em !important;
+    }
   </style>
 </head>
 <body>
@@ -145,7 +166,7 @@
     </header>
 
     <main class="paper-card">
-      <div id="content">
+      <div id="content" class="tex2jax_process">
         <p class="status-msg">Loading daily briefing...</p>
       </div>
     </main>
@@ -161,7 +182,14 @@
         if (!response.ok) throw new Error('File not found');
 
         const markdownText = await response.text();
+        
+        // Step 1: Parse Markdown to HTML
         contentDiv.innerHTML = marked.parse(markdownText);
+
+        // Step 2: Typeset LaTeX equations via MathJax
+        if (window.MathJax && window.MathJax.typesetPromise) {
+          await window.MathJax.typesetPromise([contentDiv]);
+        }
 
         const now = new Date();
         dateLabel.textContent = `Daily Intelligence Update • ${now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
@@ -174,4 +202,5 @@
   </script>
 </body>
 </html>
+
 
