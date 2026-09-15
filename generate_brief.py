@@ -2,14 +2,14 @@ import os
 import sys
 from google import genai
 
-# Verify secret is present in GitHub Actions
-if not os.environ.get("GEMINI_API_KEY"):
-    print("Error: GEMINI_API_KEY environment variable is missing in GitHub secrets.")
+api_key = os.environ.get("GEMINI_API_KEY")
+
+if not api_key:
+    print("Error: GEMINI_API_KEY secret is not set in GitHub settings!")
     sys.exit(1)
 
 try:
-    # The client automatically picks up GEMINI_API_KEY from environment variables
-    client = genai.Client()
+    client = genai.Client(api_key=api_key)
 
     prompt = """
     You are a daily creative tech curator. 
@@ -20,16 +20,17 @@ try:
     - End each section with a '> Builder Perspective:' callout blockquote.
     """
 
+    # Updated to the current supported model string
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3.6-flash",
         contents=prompt
     )
 
     with open("content.md", "w", encoding="utf-8") as f:
         f.write(response.text)
 
-    print("Success: content.md updated!")
+    print("Successfully generated content.md!")
 
 except Exception as e:
-    print(f"Execution failed: {e}")
+    print(f"Failed to generate brief: {e}")
     sys.exit(1)
