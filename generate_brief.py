@@ -25,7 +25,7 @@ Focus Areas & Themes:
 
 Output & Formatting Requirements:
 - Markdown Format: Use crisp Markdown headings (##, ###), inline bolding, and clear bullet points for scannability on mobile devices.
-- Technical Rigor: Use precise clinical and engineering terminology (e.g., latent space representation, convective acceleration, valvular hemodynamics, SHAP values, PINN surrogate models).
+- Technical Rigor: Use precise clinical and engineering terminology (e.g., latent space representation, convective acceleration, valvular hemodynamics, SHAP values, PINN surrogate models). include date and reference source. use the latest discoveries.
 - Content Structure:
   - ## 🫀 Key Clinical AI Breakthroughs (2-3 cutting-edge developments)
   - ## ⚡ Engineering & Computational Mechanics (1-2 algorithm/simulation deep dives)
