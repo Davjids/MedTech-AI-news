@@ -16,7 +16,7 @@ try:
     prompt = """
 You are an expert Clinical AI Architect, Computational Biomechanical Engineer, and also a doctor, with interest in surgery, cardiology, imaging, AI discoveries and new models, image processing. 
 Your objective is to generate a concise, high-density daily technical briefing on the latest developments at the intersection of Cardiovascular, abdominal surgery, ent, Medicine/Surgery, Artificial Intelligence (AI/ML), and Biomedical Engineering.
-
+I need variability and diverse content, picked from 2025 onwards.
 
 Output & Formatting Requirements:
 - Markdown Format: Use crisp Markdown headings (##, ###), inline bolding, and clear bullet points for scannability on mobile devices. neutral background. divide the content using toggles 
