@@ -2,8 +2,12 @@ name: Daily MedTech AI News Generator
 
 on:
   schedule:
-    - cron: '0 6 * * *'
+    - cron: '17 6 * * *'
   workflow_dispatch:
+
+# Add explicit write access to repository contents
+permissions:
+  contents: write
 
 jobs:
   build-and-deploy:
@@ -28,7 +32,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          python generate_brief.py
+          python generate_news.py
 
       - name: Commit and push updated files
         run: |
