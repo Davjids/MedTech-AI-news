@@ -20,11 +20,15 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install Dependencies
+        run: |
+          pip install google-genai
+
       - name: Run News Generator
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          python generate_brief.py
+          python generate_news.py
 
       - name: Commit and push updated files
         run: |
