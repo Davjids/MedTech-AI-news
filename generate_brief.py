@@ -1,12 +1,10 @@
 #  up#Force update trigger
-
-
 import os
 import json
 import datetime
-import urllib.request
-import urllib.parse
 from pathlib import Path
+from google import genai
+from google.genai import types
 
 # --- CONFIGURATION & PATHS ---
 HISTORY_FILE = Path("history.json")
@@ -29,14 +27,17 @@ def save_history(history):
 
 def generate_content_with_llm(history):
     """
-    Calls the LLM passing past history as negative constraints
-    with dynamic sampling temperature.
+    Calls Gemini API using google-genai SDK, passing past topics as 
+    negative constraints with elevated temperature.
     """
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        raise ValueError("Missing OPENAI_API_KEY environment variable.")
+        raise ValueError("Missing GEMINI_API_KEY environment variable.")
 
-    # Fetch up to 25 recent topics to prevent repetition
+    # Initialize Gemini client
+    client = genai.Client(api_key=api_key)
+
+    # Get up to 25 recent topics to prevent repetition
     past_topics = history[-25:]
 
     system_prompt = (
@@ -53,32 +54,38 @@ Here is a list of recently published topics and headlines. You MUST NOT cover th
 
 Instructions:
 1. Provide clean HTML output formatted as an article feed (semantic HTML5, direct cards/sections).
-2. Return a JSON object with two keys:
-   - "titles": A list of the 3 main headline titles generated today (for tracking history).
+2. Return a valid JSON object with exactly two keys:
+   - "titles": A list of strings containing the 3 main headline titles generated today (for tracking history).
    - "html_body": The HTML string representing the 3 news items to be embedded into the website.
 """
 
-    url = "https://api.openai.com/v1/chat/completions"
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {api_key}"
-    }
+    # Enforce JSON output schema
+    config = types.GenerateContentConfig(
+        system_instruction=system_prompt,
+        temperature=0.8,  # Higher sampling temperature for dynamic topic output
+        response_mime_type="application/json",
+        response_schema={
+            "type": "OBJECT",
+            "properties": {
+                "titles": {
+                    "type": "ARRAY",
+                    "items": {"type": "STRING"}
+                },
+                "html_body": {"type": "STRING"}
+            },
+            "required": ["titles", "html_body"]
+        }
+    )
 
-    payload = {
-        "model": "gpt-4o-mini",
-        "temperature": 0.8,  # Higher temperature forces unique selections each run
-        "response_format": {"type": "json_object"},
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ]
-    }
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=user_prompt,
+        config=config
+    )
 
-    req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers)
-    with urllib.request.urlopen(req) as response:
-        res_data = json.loads(response.read().decode("utf-8"))
-        content = json.loads(res_data["choices"][0]["message"]["content"])
-        return content
+    # Parse response
+    content = json.loads(response.text)
+    return content
 
 def update_html_page(html_body):
     """Renders the final index.html with the new body content."""
@@ -120,7 +127,7 @@ def update_html_page(html_body):
 def main():
     history = load_history()
 
-    # Generate content using LLM
+    # Generate content using Gemini API
     result = generate_content_with_llm(history)
     
     new_titles = result.get("titles", [])
