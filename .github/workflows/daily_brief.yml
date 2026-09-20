@@ -28,7 +28,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          python generate_news.py
+          python generate_brief.py
 
       - name: Commit and push updated files
         run: |
